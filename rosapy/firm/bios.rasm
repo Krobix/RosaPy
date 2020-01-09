@@ -1,0 +1,2 @@
+STORE __sysin, "input(var)";
+STORE __sysout, "print(var)";

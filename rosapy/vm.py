@@ -61,16 +61,16 @@ class Machine:
 		
 	def exec_opcode(self, op, args):
 		if op == ops.ADD:
-			self.retstack.push(parse.r_eval(args[0]) + parse.reval(args[1]))
+			self.retval = (parse.r_eval(args[0]) + parse.r_eval(args[1]))
 			
 		elif op == ops.SUB:
-			self.retstack.push(parse.r_eval(args[0], self) - parse.r_eval(args[1], self))
+			self.retval = (parse.r_eval(args[0], self) - parse.r_eval(args[1], self))
 			
 		elif op == ops.MUL:
-			self.retstack.push(parse.r_eval(args[0], self) * parse.r_eval(args[1], self))
+			self.retval = (parse.r_eval(args[0], self) * parse.r_eval(args[1], self))
 			
 		elif op == ops.DIV:
-			self.retstack.push(parse.r_eval(args[0], self) / parse.r_eval(args[1], self))
+			self.retval = (parse.r_eval(args[0], self) / parse.r_eval(args[1], self))
 			
 		elif op == ops.LESS:
 			if parse.r_eval(args[0], self) < parse.r_eval(args[1], self):
@@ -94,11 +94,11 @@ class Machine:
 			
 		elif op == ops.SYSWRITE:
 			var = args[0]
-			exec(parse.r_eval(self.stack.get(self.var_address_table["__sysout"]), self))
+			exec(self.stack.get(self.var_address_table["__sysout"]))
 			
 		elif op == ops.SYSREAD:
 			var = args[0]
-			exec(parse.r_eval(self.stack.get(self.var_address_table["__sysin"]), self))
+			exec(self.stack.get(self.var_address_table["__sysin"]))
 			
 		elif op == ops.WRITE:
 			with open(parse.r_eval(args[0], self), "w") as f:
