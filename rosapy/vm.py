@@ -1,5 +1,6 @@
 from bytecode import Opcodes as ops
 import parse
+import sys
 
 class Stack:
 	def __init__(self):
@@ -51,13 +52,13 @@ class Stack:
 		return self._length
 		
 class Machine:
-	def __init__(self, file):
+	def __init__(self):
 		self.instruction_ptr = 0
 		self.stack = Stack()
 		self.retval = ""
 		self.func_stack = []
 		self.var_address_table = {}
-		self.file = file
+		self.file = parse.RosaBinFile()
 		
 	def exec_opcode(self, op, args):
 		if op == ops.ADD:
@@ -109,20 +110,47 @@ class Machine:
 				self.retval = f.read()
 				
 		elif op == ops.READRET:
-			self.exec_opcode(ops.STORE, [args[0], self.retval]) 
+			self.exec_opcode(ops.STORE, [args[0], f"'{self.retval}'"]) 
 			
 		elif op == ops.JMP:
-			self.instruction_ptr = parse.r_eval(args[0])
+			self.instruction_ptr = parse.r_eval(args[0], self)
 			
 		elif op == ops.CALL:
 			self.exec_opcode_by_location(parse.r_eval(args[0], self))
 			
 		elif op == ops.CALLPY:
-			globals()[parse.r_eval(args[0])](*parse.eval_loop(args[1:]))
+			globals()[parse.r_eval(args[0], self)](*parse.eval_loop(args[1:], self))
 			
 		elif op == ops.IMPORT:
-			self.exec_file_by_name(parse.r_eval(args[0], self))
+			fname = parse.r_eval(args[0], self)
+			tmpf = parse.RosaBinFile()
+			try:
+				tmpf.read_from_bin_file("bin/" + fname)
+			except FileNotFoundError:
+				self.retval = "import fail"
+				return
+			pos = self.instruction_ptr
+			for x in tmpf.code:
+				self.exec_opcode(x)
+				
+		elif op == ops.EXIT:
+			sys.exit()
+				
+		elif op == ops.ERR:
+			self.exec_opcode(ops.SYSWRITE, [f"[FATAL ERROR] {parse.r_eval(args[0], self)}"])
 			
 	def exec_opcode_by_location(self, location):
 		code = self.file.code[location]
 		self.exec_opcode(code[0], code[1:])
+		
+	def cpu(self):
+		while True:
+			try:
+				self.exec_opcode_by_location(self.instruction_ptr)
+				self.instruction_ptr += 1
+			except IndexError:
+				sys.exit()
+				
+	def normal_boot(self):
+		self.file.read_from_bin_file("bin/bios.bin")
+		self.cpu()

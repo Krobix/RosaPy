@@ -1,0 +1,7 @@
+JMP 2;
+ERR "bin/os_menu.bin not found."; //In case import fails;
+STORE __sysin, "input(var)";
+STORE __sysout, "print(var)";
+IMPORT "os_menu.bin";
+READRET failed;
+EQUALS failed, "import fail", 1; 

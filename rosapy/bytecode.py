@@ -33,7 +33,7 @@ class Opcodes:
 	
 	READ = 13 #READ "/path/to/file"; pushes contents of file at "/path/to/file" to return stack
 	
-	READRET = 20 #READRET "var"; Reads the return mem value and sets vars value to it
+	READRET = 20 #READRET var; Reads the return mem value and sets vars value to it
 	
 	#JUMP AND CALL
 	JMP = 17 #JMP 10; jumps to opcode ten and continues after opcode ten
@@ -45,8 +45,10 @@ class Opcodes:
 	IMPORT = 21 #IMPORT "file.bin"; executes file with given name and exits the current program  
 	
 	#OTHER
+	EXIT = 22
+	
 	ERR = 255 #Raises error given
 	
 	OPSEP = 0
 	
-	ARGSEP = 128
+	ARGSEP = 1
